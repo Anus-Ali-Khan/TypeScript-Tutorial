@@ -1,121 +1,90 @@
-class Coder {
-  secondLang!: string;
-  constructor(
-    public readonly name: string,
-    public music: string,
-    private age: number,
-    protected lang: string = "Typescript"
-  ) {
-    this.name = name;
-    this.music = music;
-    this.age = age;
-    this.lang = lang;
-  }
+//***Index Signatures (used when we do not know the keys of our object but knows their data types)
 
-  public getAge() {
-    return `Hello, I'm ${this.age}`;
-  }
+// interface TransactionObj {
+//   readonly [index: string]: number;
+// }
+
+interface TransactionObj {
+  readonly [index: string]: number;
+  Pizza: number;
+  Books: number;
+  Job: number;
 }
 
-const Dave = new Coder("Dave", "Rock", 42);
-console.log(Dave.getAge());
-// console.log(Dave.age); private and protected variables cannot be accessed outside the class
-// console.log(Dave.lang);
+const todaysTransactions: TransactionObj = {
+  Pizza: -10,
+  Books: -5,
+  Job: 50,
+};
 
-class WebDev extends Coder {
-  constructor(
-    public computer: string,
-    name: string,
-    music: string,
-    age: number
-  ) {
-    super(name, music, age);
-    this.computer = computer;
+console.log(todaysTransactions.Pizza);
+console.log(todaysTransactions["Pizza"]);
+
+let prop: string = "Pizza";
+console.log(todaysTransactions[prop]);
+
+const todaysNet = (transactions: TransactionObj): number => {
+  let total = 0;
+  for (const transaction in transactions) {
+    total += transactions[transaction];
   }
+  return total;
+};
 
-  public getLang() {
-    return `I write ${this.lang}`;
-  }
-}
+console.log(todaysNet(todaysTransactions));
+// todaysTransactions.Pizza = 40
 
-const Sara = new WebDev("Mac", "Sara", "Lofi", 25);
-console.log(Sara.getLang());
-// console.log(Sara.age)
-// console.log(Sara.lang)
-///////////////////////////////////////////////////////////
+// Note: if a property doesn't exist in our object typescript will not show us error but result will be undefined
+console.log(todaysTransactions["Dave"]);
 
-//Interfaces
+//////////////////////////////////////////////////////
 
-interface Musician {
+interface Student {
+  // [key: string]: string | number | number[] | undefined;
   name: string;
-  instrument: string;
-  play(action: string): string;
+  GPA: number;
+  classes?: number[];
+}
+const student: Student = {
+  name: "Doug",
+  GPA: 3.5,
+  classes: [100, 200],
+};
+
+//console.log(Student.test)
+
+//***key of assertion
+
+for (const key in student) {
+  console.log(`${key}: ${student[key as keyof Student]}`);
 }
 
-class Guitarist implements Musician {
-  name: string;
-  instrument: string;
+Object.keys(student).map((key) => {
+  console.log(student[key as keyof typeof student]);
+});
 
-  constructor(name: string, instrument: string) {
-    this.name = name;
-    this.instrument = instrument;
-  }
+const logStudentKey = (student: Student, key: keyof Student): void => {
+  console.log(`Student ${key}: ${student[key]}`);
+};
 
-  play(action: string) {
-    return `${this.name} ${action} the ${this.instrument}`;
-  }
+logStudentKey(student, "name");
+
+////////////////////////////////////
+
+// interface Incomes {
+//   [key: string]: number;
+// }
+
+type Streams = "salary" | "bonus" | "sidehustle";
+
+type Incomes = Record<Streams, number | string>;
+
+const monthlyIncomes: Incomes = {
+  salary: 500,
+  bonus: 100,
+  sidehustle: 250,
+};
+
+for (const revenue in monthlyIncomes) {
+  console.log(monthlyIncomes[revenue as keyof Incomes]);
 }
-
-const Page = new Guitarist("Jimmy", "guitar");
-console.log(Page.play("strums"));
-///////////////////////////////////////////////////
-
-class Peeps {
-  static count: number = 0;
-
-  static getCount(): number {
-    return Peeps.count;
-  }
-  public id: number;
-
-  constructor(public name: string) {
-    this.name = name;
-    this.id = ++Peeps.count;
-  }
-}
-
-const John = new Peeps("John");
-const Steve = new Peeps("Steve");
-const Amy = new Peeps("Amy");
-
-console.log(Steve.id);
-console.log(John.id);
-console.log(Amy.id);
-console.log(Peeps.count);
-//////////////////////////////
-
-class Bands {
-  private dataState: string[];
-
-  constructor() {
-    this.dataState = [];
-  }
-
-  public get data(): string[] {
-    return this.dataState;
-  }
-
-  public set data(value: string[]) {
-    if (Array.isArray(value) && value.every((el) => typeof el === "string")) {
-      this.dataState = value;
-      return;
-    } else throw new Error("Param is not an array of strings");
-  }
-}
-
-const MyBands = new Bands();
-MyBands.data = ["Neil Young", "Led Zep"];
-console.log(MyBands.data);
-MyBands.data = [...MyBands.data, "ZZ Top"];
-console.log(MyBands.data);
-// MyBands.data = ["van Hela", 5150]; // it throws an an error because 5150 is not an string
